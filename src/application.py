@@ -60,21 +60,18 @@ class Application(tk.Frame):
         self.elements.append(Element(self.frame_elements, index))
                 
     def say_hi(self):
-        print("hi there, everyone!")
-        print(self.elements[0].power_spin.get())
-        print(self.elements[0].power.get())
-        
-        print(self.elements[0].id.get())
-        print(self.elements[0].status.get())
-        print(self.elements[0].power.get())
-        print(self.elements[0].posx.get())
-        print(self.elements[0].posy.get())
-        print(self.elements[0].date.get())
+        print(self.elements[0].power.set("33"))  
+        print(self.elements[0].posx.set("33"))
         
     def say_goodbye(self):
-        print("Goodbye, everyone!")
-        print(self.elements[0].power.set("33"))  
-        print(self.elements[0].posx.set("33"))       
+        print( )
+                
+        print("id", self.elements[0].id.get())
+        print("status", self.elements[0].status.get())
+        print("power", self.elements[0].power.get())
+        print("posx", self.elements[0].posx.get())
+        print("posy", self.elements[0].posy.get())
+        print("date", self.elements[0].date.get())    
         
         
         
