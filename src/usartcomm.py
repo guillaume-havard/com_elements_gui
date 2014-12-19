@@ -17,7 +17,9 @@ class UsartComm():
         self.port = None
         
     def read(self):
+        #port.read()
         pass
     
     def write(self, message):
+        #port.write(message)
         pass

@@ -11,6 +11,11 @@ from tkinter import messagebox
 
 
 class Element(tk.Frame):
+    """
+    TODO: Message status
+    TODO: Message change power
+    TODO: Message pair
+    """
 
     # internal State
     is_paired = True
@@ -98,12 +103,11 @@ class Element(tk.Frame):
         #Limit verification with power_scale        
         self.power.set(value)
         
-        
         return True
         
     def power_scale_cmd(self, value):
         # Fait avec l'entry
-        print("  ++", self.power.get(), value)
+        #print("  ++", self.power.get(), value)
         pass
         
     def pair_cmd(self):

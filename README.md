@@ -16,3 +16,7 @@ Files
 * usartcomm.py: for serial communication
 * traitement.py: exemple for serial communication with our elements
 * cmd_lampe.py: exemple for serial communication with our elements
+
+For tkinter
+
+http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/index.html
