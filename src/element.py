@@ -7,6 +7,8 @@
 Copyright (c) 2014 Guillaume Havard - BVS
 """
 import tkinter as tk
+from tkinter import messagebox
+
 
 class Element(tk.Frame):
 
@@ -106,7 +108,11 @@ class Element(tk.Frame):
         
     def pair_cmd(self):
         if self.is_paired:
-            self.unappair()
+            ret = messagebox.askokcancel("verification",
+                                    "Do you want to unappair this element ?",
+                                    default=messagebox.CANCEL)
+            if ret:
+                self.unappair()
         else:
             self.appair()
             
@@ -131,3 +137,5 @@ class Element(tk.Frame):
         self.pair_button["text"] = "unappair"
         
         self.is_paired = True
+        
+        
