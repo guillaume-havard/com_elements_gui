@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 
 """
-
-2014/12/19 - Guillaume Havard: bases
-    
 Copyright (c) 2014 Guillaume Havard - BVS
 """
 import serial
