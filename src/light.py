@@ -11,7 +11,7 @@ class Light():
         # 0 : Off
         # 1 : On
         # 2 : Unappaired
-        self.status = 2
+        self.status = 0
         self.power = 0
         self.posx = -1
         self.posy = -1

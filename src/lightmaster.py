@@ -47,6 +47,7 @@ class LightMaster():
             ret = self.serial.read(5)            
             if ret is None:
                 continue
+                                
             if len(ret) == 5:
                 self.process_message(ret)
         
@@ -84,8 +85,33 @@ class LightMaster():
     
     def slave_index(self, id_slave):
         """
-        return the index of the slave in self.slavec
+        return the index of the slave in self.slaves
         If the a slave is not found a new one is created
+        """
+        i = self.__slave_index(id_slave)
+        
+        if i == -1:
+            self.slaves.append(light.Light(id_slave))
+            
+        return i
+        
+    def slave_index_sec(self, id_slave):
+        """
+        return the index of the slave in self.slaves
+        If the a slave is not found throw an exeption
+        """
+        i = self.__slave_index(id_slave)
+        
+        if i == -1:
+            raise IndexError("This slave do not exist")
+            pass
+            
+        return i
+        
+    def __slave_index(self, id_slave):
+        """
+        return the index of the slave in self.slaves
+        If the a slave is not found return -1
         """
         i = 0
         while i < len(self.slaves):            
@@ -94,14 +120,14 @@ class LightMaster():
             i += 1
         
         if i == len(self.slaves):
-            self.slaves.append(light.Light(id_slave))
+            return -1
             
         return i
         
     def update_light_time(self, message):
         """
         update light state according to messages send by slaves
-        """                
+        """          
         index = self.slave_index(message[1])
         self.slaves[index].time = datetime.datetime.now()        
 
@@ -139,11 +165,40 @@ class LightMaster():
                 
         return -1
         
+    def is_slave(self, id_slave):
+        """
+        Indicate if the slave existe"
+        """
+        try:
+            self.slave_index_sec(id_slave)
+        except IndexError:
+            return False
+        
+        return True
+        
     def is_paired(self, id_slave):
         """
         return True if the slave is paired, false otherwise
         """
         return True
+        
+    def update_status(self, id_slave, value):
+        """
+        Will update the data in memory
+        id_slave int : id of the slave
+        value int [0,1,2] : value to set
+        """
+        index = self.slave_index_sec(id_slave)
+        self.slaves[index].status = value
+        
+    def update_power(self, id_slave, value):
+        """
+        Will update the data in memory
+        id_slave int : id of the slave
+        value int [0,1,2] : value to set
+        """
+        index = self.slave_index_sec(id_slave)
+        self.slaves[index].power = value
     
     ## Command that can be sent
                 
@@ -153,23 +208,29 @@ class LightMaster():
         Add the slave to the slave liste
         id_slave int: id of the slave
         """
+        if not self.is_slave(id_slave):
+            return -1
         if not self.is_paired(id_slave):
             return -1
             
         message = [id_slave, self.id, usartcomm.PAIRING, 0xFF, 0xFF]
-        self.messages_pairing.append(message)
+        self.messages_pairing.append(message) 
+        self.update_status(id_slave, 0)
     
     def cmd_unappair(self, id_slave):
         """
         Unappair the slave
         id_slave int: id of the slave
         """
+        if not self.is_slave(id_slave):
+            return -1
         if not self.is_paired(id_slave):
             return -1
             
         message = [id_slave, self.id, usartcomm.ACK_PRES,
                    usartcomm.UNPAIRING, 0xFF]
         self.add_message(message)
+        self.update_status(id_slave, 2)
         
     def cmd_switch_on(self, id_slave, power=0):
         """
@@ -177,24 +238,30 @@ class LightMaster():
         id_slave int: id of the slave
         power int [0;255], power of the light
         """
+        if not self.is_slave(id_slave):
+            return -1
         if not self.is_paired(id_slave):
             return -1
         
         message = [id_slave, self.id, usartcomm.ACK_PRES,
                    usartcomm.ON, power]
         self.add_message(message)
+        self.update_status(id_slave, 1)
     
     def cmd_switch_off(self, id_slave):
         """
         Switch off the slave
         id_slave int: id of the slave        
         """
+        if not self.is_slave(id_slave):
+            return -1
         if not self.is_paired(id_slave):
             return -1
         
         message = [id_slave, self.id, usartcomm.ACK_PRES,
                    usartcomm.OFF, 0xFF]
         self.add_message(message)
+        self.update_status(id_slave, 0)
     
     def cmd_change_power(self, id_slave, power):
         """
@@ -202,12 +269,15 @@ class LightMaster():
         id_slave int: id of the slave
         power int [0;255], power of the light
         """
+        if not self.is_slave(id_slave):
+            return -1
         if not self.is_paired(id_slave):
             return -1
         
         message = [id_slave, self.id, usartcomm.ACK_PRES,
                    usartcomm.CHANGE, power]
         self.add_message(message)
+        self.update_power(id_slave, power)
         
     ### Private
     def print_slaves(self):
