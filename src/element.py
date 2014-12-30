@@ -106,7 +106,7 @@ class Element(tk.Frame):
             self.power_scale["state"]=tk.DISABLED 
         elif not self.status_old and self.status.get():
             print("Element::status_action switch on")
-            self.lm.cmd_switch_on(self.id.get())
+            self.lm.cmd_switch_on(self.id.get(), self.power.get())
             self.power_scale["state"]=tk.ACTIVE 
         
         self.status_old = self.status.get()      
