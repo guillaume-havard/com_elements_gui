@@ -7,6 +7,8 @@ Copyright (c) 2014 Guillaume Havard - BVS
 
 import tkinter as tk
 from element import *
+import lightmaster
+import _thread
 
 class Application(tk.Frame):
     
@@ -18,6 +20,8 @@ class Application(tk.Frame):
         #self["width"] = 200
         #self.grid_propagate(0)
         self.grid()
+        
+        self.lm = lightmaster.LightMaster()
         
         self.frame_options = tk.Frame(self)
         self.frame_options.grid(row=0)
@@ -35,26 +39,29 @@ class Application(tk.Frame):
         self.bdd_save = tk.Button(self.frame_options, text="Save BdD", command=self.say_goodbye)        
         self.bdd_save.grid(row=0, column=1)
         
-        self.add_element()        
-        self.add_element()
-        self.add_element()
+        self.add_element(11)        
+        #self.add_element()
+        #self.add_element()
         
-        self.elements[0].unappair()
-        self.elements[0].appair()
-        self.elements[1].unappair()
+        #self.elements[0].unappair()
+        #self.elements[0].appair()
+        #self.elements[1].unappair()
         
         self.QUIT = tk.Button(self.frame_bottom, text="QUIT", fg="red",
                                             command=self.master.destroy)
         self.QUIT.grid()
+        
+        _thread.start_new_thread(self.lm.loop,())
                                 
-    def add_element(self):
+    def add_element(self, slave_id):
         """
         Ajoute un element dans frame_elements.
         Par la suite fera un lien avec un modèle element.
         """
         # Pour le moment ajoute à la fin
         index = self.frame_elements.grid_size()[1]        
-        self.elements.append(Element(self.frame_elements, index))
+        self.elements.append(Element(self.frame_elements, index, 
+                                     self.lm, slave_id))
                 
     def say_hi(self):
         print(self.elements[0].power.set("33"))  

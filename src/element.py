@@ -18,17 +18,24 @@ class Element(tk.Frame):
     is_paired = True
     MIN_POWER = 0
     MAX_POWER = 255
-    status_old = 1
+    status_old = None
     
-    def __init__(self, master, pos):
+    def __init__(self, master, pos, lm, slave_id):
+        """
+        lm LightMaster : reference to the lightMaster
+        slave_id : slave this element will be representing
+        """
         tk.Frame.__init__(self, master)
         self.grid(row=pos)
         
-        self.id = tk.StringVar()
-        self.id.set("ID")
+        self.lm = lm
+                
+        self.id = tk.IntVar()
+        self.id.set(slave_id)
         self.status = tk.IntVar()
-        self.status.set(1)
-        self.power = tk.StringVar()
+        self.status.set(0)
+        self.status_old = self.status.get()
+        self.power = tk.IntVar()
         self.power.set(0)
         self.posx = tk.StringVar()
         self.posx.set("X")
@@ -83,9 +90,11 @@ class Element(tk.Frame):
     def status_cmd(self):
         if self.status_old and not self.status.get():
             print("switch off")
+            self.lm.cmd_switch_off(self.id.get())
             self.power_scale["state"]=tk.DISABLED 
         elif not self.status_old and self.status.get():
-            print("switch on")  
+            print("switch on")
+            self.lm.cmd_switch_on(self.id.get())
             self.power_scale["state"]=tk.ACTIVE 
         
         self.status_old = self.status.get()      
@@ -99,6 +108,8 @@ class Element(tk.Frame):
         value = str(int(value))
         #Limit verification with power_scale        
         self.power.set(value)
+        
+        self.lm.cmd_change_power(self.id.get(), self.power.get())
         
         return True
         

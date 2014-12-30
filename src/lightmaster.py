@@ -7,9 +7,13 @@ import datetime
 import light
 import usartcomm
 
+# TODO: change status when cmd.
+# TODO: finish is_paired (alwas True for the moment)
+
 class LightMaster():
     """
     Take care off all communication with the slave lights
+    
     """   
     # Slave in communication with the master.
     # Paired or not.
@@ -45,8 +49,6 @@ class LightMaster():
                 continue
             if len(ret) == 5:
                 self.process_message(ret)
-            
-            
         
     def process_message(self, message):
         """"
@@ -70,8 +72,12 @@ class LightMaster():
             if not self.is_paired(id_slave):
                 return -1
             self.check_pairing(id_slave)
+        elif message[2] & usartcomm.ACK == usartcomm.ACK:
+            # Acknowledgment commande
+            print("ACKNOLEDGMENT")
         else:
-            # Acknowledgment de commande
+            # Unknown type of message
+            print("Unknown:", message)
             pass
     
     def slave_index(self, id_slave):
@@ -107,7 +113,7 @@ class LightMaster():
     
     def check_pairing(self, id_slave):
         """
-        Check if there a command for the slave
+        Check if there a pairing for the slave
         """
         print("pairing of :", id_slave)
         for i in range(len(self.messages_pairing)):
@@ -116,9 +122,11 @@ class LightMaster():
                 del self.messages_pairing[i]
                 return 1
         
+        return -1
+        
     def check_command(self, id_slave):
         """
-        Check if there is a pairing demand for the slave
+        Check if there is a command demand for the slave
         """
         print("presence of :", id_slave)
         for i in range(len(self.messages)):
@@ -126,8 +134,8 @@ class LightMaster():
                 self.send_message(self.messages[i])
                 del self.messages[i]
                 return 1
-    
-    
+                
+        return -1
         
     def is_paired(self, id_slave):
         """

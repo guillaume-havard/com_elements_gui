@@ -26,9 +26,9 @@ class UsartComm():
     NB_BYTES = 5;
     
     def __init__(self):        
-        self.port = serial.Serial("/dev/ttyAMA0", 
+        self.port = serial.Serial("/dev/ttyUSB0", 
                          baudrate=115200, 
-                         timeout=5,
+                         timeout=5, #0: no timeout, None: blocking mode
                          parity=serial.PARITY_NONE,
                          stopbits=serial.STOPBITS_ONE,)
         
