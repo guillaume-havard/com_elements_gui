@@ -34,7 +34,7 @@ class Element(tk.Frame):
         self.id.set(slave_id)
         self.status = tk.IntVar()
         self.status.set(0)
-        self.status_old = self.status.get()
+        self.status_old = not self.status.get()
         self.power = tk.IntVar()
         self.power.set(0)
         self.posx = tk.StringVar()
@@ -86,8 +86,12 @@ class Element(tk.Frame):
                                      command=self.pair_cmd)
         self.pair_button.grid(row=0, column=7)
     
+        self.update_GUI()
     
     def status_cmd(self):
+         self.status_action()
+    
+    def status_action(self):
         if self.status_old and not self.status.get():
             print("switch off")
             self.lm.cmd_switch_off(self.id.get())
@@ -149,5 +153,16 @@ class Element(tk.Frame):
         self.pair_button["text"] = "unappair"
         
         self.is_paired = True
+        
+    def update_GUI(self):
+        """
+        Update widgets according to values
+        """
+        self.status_action()
+        
+        if self.is_paired:            
+            self.appair()
+        else:
+            self.unappair()
         
         
