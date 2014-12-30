@@ -15,6 +15,7 @@ UNPAIRING = 0x0C
 
 ACK = 0x10
 
+RES = 0xC0
 S_OK = 0x00
 S_NOT_OK = 0x40
 M_NOT_OK = 0x80
@@ -26,7 +27,7 @@ class UsartComm():
     NB_BYTES = 5;
     
     def __init__(self):        
-        self.port = serial.Serial("/dev/ttyUSB0", 
+        self.port = serial.Serial("/dev/ttyAMA0", 
                          baudrate=115200, 
                          timeout=5, #0: no timeout, None: blocking mode
                          parity=serial.PARITY_NONE,

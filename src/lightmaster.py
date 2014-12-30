@@ -74,7 +74,9 @@ class LightMaster():
             self.check_pairing(id_slave)
         elif message[2] & usartcomm.ACK == usartcomm.ACK:
             # Acknowledgment commande
-            print("ACKNOLEDGMENT")
+            if message[2] & usartcomm.RES == usartcomm.S_NOT_OK:
+                print("There is an error for the last command")
+            self.check_command(id_slave)
         else:
             # Unknown type of message
             print("Unknown:", message)
