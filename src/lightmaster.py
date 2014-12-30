@@ -76,15 +76,26 @@ class LightMaster():
             print("Unknown:", message)
             pass
     
-    def slave_index(self, id_slave):
+    def slave_index(self, message):
         """
         return the index of the slave in self.slaves
-        If the a slave is not found a new one is created
+        If the a slave is not found a new one is created with his state
+        list(int) : message send by the slave
         """
+        id_slave = message[1]
+        
         i = self.__slave_index(id_slave)
         
         if i == -1:
             self.slaves.append(light.Light(id_slave))
+            #must be from a presence or a pairing message
+            if message[2] == usartcomm.PRESENCE:            
+                self.slaves[i].status = message[3]
+                self.slaves[i].power = message[4]
+            elif message[2] == usartcomm.DEMAND_PAIRING:
+                self.slaves[i].status = 2
+            else:
+                print("Message not conform, Light not initilised")
             
         return i
         
@@ -121,7 +132,7 @@ class LightMaster():
         """
         update light state according to messages send by slaves
         """          
-        index = self.slave_index(message[1])
+        index = self.slave_index(message)
         self.slaves[index].time = datetime.datetime.now()        
 
     def message_to_int(self, message):
