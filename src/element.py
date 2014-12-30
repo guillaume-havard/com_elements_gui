@@ -101,11 +101,11 @@ class Element(tk.Frame):
     
     def status_action(self):
         if self.status_old and not self.status.get():
-            print("switch off")
+            print("Element::status_action switch off")
             self.lm.cmd_switch_off(self.id.get())
             self.power_scale["state"]=tk.DISABLED 
         elif not self.status_old and self.status.get():
-            print("switch on")
+            print("Element::status_action switch on")
             self.lm.cmd_switch_on(self.id.get())
             self.power_scale["state"]=tk.ACTIVE 
         
@@ -130,8 +130,10 @@ class Element(tk.Frame):
                                     default=messagebox.CANCEL)
             if ret:
                 self.unappair()
+                self.lm.cmd_unappair(self.id.get())
         else:
             self.appair()
+            self.lm.cmd_appair(self.id.get())
             
     def unappair(self):
         self.status_frame.grid_remove()
@@ -139,7 +141,6 @@ class Element(tk.Frame):
         self.power_entry.grid_remove()
         self.posx_label.grid_remove()
         self.posy_label.grid_remove()
-        self.date_label.grid_remove()
         self.pair_button["text"] = "appair"
         
         self.is_paired = False
@@ -150,7 +151,6 @@ class Element(tk.Frame):
         self.power_entry.grid()
         self.posx_label.grid()
         self.posy_label.grid()
-        self.date_label.grid()
         self.pair_button["text"] = "unappair"
         
         self.is_paired = True

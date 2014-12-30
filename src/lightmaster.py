@@ -7,9 +7,6 @@ import datetime
 import light
 import usartcomm
 
-# TODO: change status when cmd.
-# TODO: finish is_paired (alwas True for the moment)
-
 class LightMaster():
     """
     Take care off all communication with the slave lights
@@ -56,6 +53,7 @@ class LightMaster():
         Process a slave's message
         """
         message = self.message_to_int(message)
+        print("message slave:", message)      
         if message[0] != self.id and message[0] != 0xFF:
             return -1        
            
@@ -64,14 +62,9 @@ class LightMaster():
         
         if message[2] == usartcomm.PRESENCE:
             # Présence du luminaire
-            if not self.is_paired(id_slave):
-                return -1
             self.check_command(id_slave)
         elif message[2] == usartcomm.DEMAND_PAIRING:
             # Demande d'appairage
-            # TODO: enlever le not
-            if not self.is_paired(id_slave):
-                return -1
             self.check_pairing(id_slave)
         elif message[2] & usartcomm.ACK == usartcomm.ACK:
             # Acknowledgment commande
@@ -180,6 +173,14 @@ class LightMaster():
         """
         return True if the slave is paired, false otherwise
         """
+        try:
+            i = self.slave_index_sec(id_slave)
+        except IndexError:
+            return False
+        
+        if self.slaves[i].status == 2:
+            return False
+        
         return True
         
     def update_status(self, id_slave, value):
@@ -210,12 +211,13 @@ class LightMaster():
         """
         if not self.is_slave(id_slave):
             return -1
-        if not self.is_paired(id_slave):
+        if self.is_paired(id_slave):
             return -1
             
         message = [id_slave, self.id, usartcomm.PAIRING, 0xFF, 0xFF]
         self.messages_pairing.append(message) 
         self.update_status(id_slave, 0)
+        print("self.messages_pairing", self.messages_pairing)
     
     def cmd_unappair(self, id_slave):
         """
@@ -227,8 +229,7 @@ class LightMaster():
         if not self.is_paired(id_slave):
             return -1
             
-        message = [id_slave, self.id, usartcomm.ACK_PRES,
-                   usartcomm.UNPAIRING, 0xFF]
+        message = [id_slave, self.id, usartcomm.UNPAIRING, 0xFF, 0xFF]
         self.add_message(message)
         self.update_status(id_slave, 2)
         
@@ -295,6 +296,11 @@ class LightMaster():
         print("message list :")
         for i in self.messages:
             print(i)
+            
+        if len(self.messages_pairing) > 0:
+            print("pairing message list :")
+            for i in self.messages_pairing:
+                print(i)
             
     def add_message(self, message):
         """
@@ -373,27 +379,13 @@ if __name__ == "__main__":
             elif cmds[0] == "4":
                 print("CHANGE 0")
                 lm.cmd_change_power(11, 0)
-        # Appairage
-        elif len(cmds) == 2:
-            cmds = [cmds[0], 
-                    lm.id, cmds[1],
-                    0xFF, 0xFF]        
-        # Commande          
-        elif len(cmds) == 3:
-            cmds = [cmds[0], 
-                    lm.id, 0x09,
-                    cmds[1], cmds[2]]       
-        else:
-            print("Mauvais message")
-            continue  
-            
-        for i in range(len(cmds)):
-            cmds[i] = int(cmds[i])
-            #cmds[i] = bytes(cmds[i].to_bytes(1, byteorder='big'))
-                    
-        #cmd = b''.join(cmds) 
-        #port.write(cmd)
-        lm.add_message(cmds)
+            elif cmds[0] == "8":
+                print("APPAIR")
+                lm.cmd_appair(11)
+            elif cmds[0] == "9":
+                print("UNAPPAIR")
+                lm.cmd_unappair(11)
+       
         
 
 
