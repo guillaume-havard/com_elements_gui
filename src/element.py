@@ -52,25 +52,20 @@ class Element(tk.Frame):
         self.status_frame.grid(row=0, column=1)
         self.status_on_radio = tk.Radiobutton(self.status_frame, text="ON", 
                                               variable=self.status,
-                                              command=self.status_cmd,
                                               value=1)
         self.status_on_radio.grid(row=0, column=0)             
         self.status_off_radio = tk.Radiobutton(self.status_frame, text="OFF", 
                                               variable=self.status,
-                                              command=self.status_cmd,
                                               value=0)
         self.status_off_radio.grid(row=1, column=0)          
-        # Power
-        okay_entry = self.register(self.power_entry_cmd)
+        # Power        
         self.power_entry = tk.Entry(self, textvariable=self.power, width=3,
-                                    validatecommand=(okay_entry, '%P'),
                                     validate='key')
         self.power_entry.grid(row=0, column=2)  
         self.power_entry["state"]=tk.DISABLED      
         self.power_scale = tk.Scale(self, variable=self.power, 
                                     from_=self.MIN_POWER, to=self.MAX_POWER,
-                                    orient=tk.HORIZONTAL,
-                                    command=self.power_scale_cmd)
+                                    orient=tk.HORIZONTAL)
         self.power_scale.grid(row=0, column=3)        
         # Posx
         self.posx_label = tk.Label(self, textvariable=self.posx)
@@ -87,6 +82,19 @@ class Element(tk.Frame):
         self.pair_button.grid(row=0, column=7)
     
         self.update_GUI()
+        
+        self.gui_add_cmd()
+    
+    def gui_add_cmd(self):
+        """
+        Add command to widgets
+        """
+        self.status_on_radio["command"] = self.status_cmd
+        self.status_off_radio["command"] = self.status_cmd
+        
+        okay_entry = self.register(self.power_entry_cmd)
+        self.power_entry["validatecommand"] = (okay_entry, '%P')
+        #self.power_scale["command"] = self.power_scale_cmd
     
     def status_cmd(self):
          self.status_action()
@@ -104,15 +112,7 @@ class Element(tk.Frame):
         self.status_old = self.status.get()      
         
     def power_entry_cmd(self, value):        
-        if value == "":
-            value = "0"
-        elif not value.isdigit():
-            return False
-        
-        value = str(int(value))
-        #Limit verification with power_scale        
-        self.power.set(value)
-        
+        # Not used for the moment, used as a label        
         self.lm.cmd_change_power(self.id.get(), self.power.get())
         
         return True
@@ -120,6 +120,7 @@ class Element(tk.Frame):
     def power_scale_cmd(self, value):
         # Fait avec l'entry
         #print("  ++", self.power.get(), value)
+        self.lm.cmd_change_power(self.id.get(), self.power.get())
         pass
         
     def pair_cmd(self):
