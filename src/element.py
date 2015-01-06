@@ -80,12 +80,12 @@ class Element(tk.Frame):
         self.pair_button = tk.Button(self, text="unappair",
                                      command=self.pair_cmd)
         self.pair_button.grid(row=0, column=7)
-    
-        self.init()
         
         self.gui_add_cmd()
         
-        self.update_GUI()
+        self.init()       
+        
+        self.update()
     
     def gui_add_cmd(self):
         """
@@ -159,16 +159,26 @@ class Element(tk.Frame):
         
     def init(self):
         """
-        Update widgets according to values
+        Initilalise widgets according to values
         """
-        self.status_action()
+        index = self.lm._slave_index(self.id.get())
+        # TODO: the id should always be present.
+        if index != -1:       
+            self.status.set(self.lm.slaves[index].status)
+            self.power.set(self.lm.slaves[index].power)
+            self.posx.set(self.lm.slaves[index].posx)
+            self.posy.set(self.lm.slaves[index].posy)        
         
-        if self.is_paired:            
+        if self.status.get() != 2:            
             self.appair()
         else:
             self.unappair()
+            
+        print("Init fait")
+        print(self.status.get(), self.power.get(), self.posx.get(),
+              self.posy.get())
     
-    def update_GUI(self):
+    def update(self):
         """
         Update widgets according to values
         """
@@ -176,6 +186,6 @@ class Element(tk.Frame):
         # TODO: the id should always be present.
         if index != -1:
             self.date.set(self.lm.slaves[index].time)
-        self.after(500, self.update_GUI)
+        self.after(500, self.update)
         
-        
+

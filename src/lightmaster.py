@@ -41,8 +41,7 @@ class LightMaster():
             print("----")
             self.print_slaves()
             self.print_messages()
-            ret = self.serial.read(5) 
-            print("read", ret)           
+            ret = self.serial.read(5)           
             if ret is None:
                 print("Pas de message")
                 continue

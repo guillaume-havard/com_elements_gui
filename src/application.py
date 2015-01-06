@@ -31,6 +31,8 @@ class Application(tk.Frame):
         self.frame_bottom.grid(row=2)
         
         self.createWidgets()
+        
+        self.update()
                 
     def createWidgets(self):
        
@@ -40,15 +42,7 @@ class Application(tk.Frame):
         self.bdd_save = tk.Button(self.frame_options, text="Save BdD",
         command=self.say_goodbye)        
         self.bdd_save.grid(row=0, column=1)
-        
-        self.add_element(11)        
-        #self.add_element()
-        #self.add_element()
-        
-        #self.elements[0].unappair()
-        #self.elements[0].appair()
-        #self.elements[1].unappair()
-        
+                
         self.QUIT = tk.Button(self.frame_bottom, text="QUIT", fg="red",
                                             command=self.master.destroy)
         self.QUIT.grid()
@@ -77,7 +71,17 @@ class Application(tk.Frame):
         print("power", self.elements[0].power.get())
         print("posx", self.elements[0].posx.get())
         print("posy", self.elements[0].posy.get())
-        print("date", self.elements[0].date.get())    
+        print("date", self.elements[0].date.get()) 
+        
+    def update(self):
+        """
+        Update elements
+        Check if there is new element linked with the LightMaster
+        """
+        if len(self.lm.slaves) != len(self.elements):
+            self.add_element(self.lm.slaves[len(self.elements)].id)
+            
+        self.after(500, self.update)   
         
         
         
