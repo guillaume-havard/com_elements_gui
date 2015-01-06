@@ -38,11 +38,16 @@ class LightMaster():
         self.ok = True
         
         while self.ok:
-            print("---")
+            print("----")
             self.print_slaves()
             self.print_messages()
-            ret = self.serial.read(5)            
+            ret = self.serial.read(5) 
+            print("read", ret)           
             if ret is None:
+                print("Pas de message")
+                continue
+            elif ret == b'':
+                print("timeout")
                 continue
                                 
             if len(ret) == 5:
@@ -55,6 +60,7 @@ class LightMaster():
         message = self.message_to_int(message)
         print("message slave:", message)      
         if message[0] != self.id and message[0] != 0xFF:
+            print("message pour un autre destinataire")
             return -1        
            
         id_slave = message[1]
@@ -84,9 +90,10 @@ class LightMaster():
         """
         id_slave = message[1]
         
-        i = self.__slave_index(id_slave)
+        i = self._slave_index(id_slave)
         
         if i == -1:
+            print("création du slave {}".format(id_slave))
             self.slaves.append(light.Light(id_slave))
             #must be from a presence or a pairing message
             if message[2] == usartcomm.PRESENCE:            
@@ -104,15 +111,15 @@ class LightMaster():
         return the index of the slave in self.slaves
         If the a slave is not found throw an exeption
         """
-        i = self.__slave_index(id_slave)
+        i = self._slave_index(id_slave)
         
         if i == -1:
-            raise IndexError("This slave do not exist")
+            raise IndexError("This slave {} do not exist".format(id_slave))
             pass
             
         return i
         
-    def __slave_index(self, id_slave):
+    def _slave_index(self, id_slave):
         """
         return the index of the slave in self.slaves
         If the a slave is not found return -1

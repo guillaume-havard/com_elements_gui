@@ -81,9 +81,11 @@ class Element(tk.Frame):
                                      command=self.pair_cmd)
         self.pair_button.grid(row=0, column=7)
     
-        self.update_GUI()
+        self.init()
         
         self.gui_add_cmd()
+        
+        self.update_GUI()
     
     def gui_add_cmd(self):
         """
@@ -155,7 +157,7 @@ class Element(tk.Frame):
         
         self.is_paired = True
         
-    def update_GUI(self):
+    def init(self):
         """
         Update widgets according to values
         """
@@ -165,5 +167,15 @@ class Element(tk.Frame):
             self.appair()
         else:
             self.unappair()
+    
+    def update_GUI(self):
+        """
+        Update widgets according to values
+        """
+        index = self.lm._slave_index(self.id.get())
+        # TODO: the id should always be present.
+        if index != -1:
+            self.date.set(self.lm.slaves[index].time)
+        self.after(500, self.update_GUI)
         
         

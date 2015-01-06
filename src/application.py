@@ -34,9 +34,11 @@ class Application(tk.Frame):
                 
     def createWidgets(self):
        
-        self.bdd_load = tk.Button(self.frame_options, text="Load BdD", command=self.say_hi)        
+        self.bdd_load = tk.Button(self.frame_options, text="Load BdD",
+        command=self.say_hi)        
         self.bdd_load.grid(row=0, column=0)
-        self.bdd_save = tk.Button(self.frame_options, text="Save BdD", command=self.say_goodbye)        
+        self.bdd_save = tk.Button(self.frame_options, text="Save BdD",
+        command=self.say_goodbye)        
         self.bdd_save.grid(row=0, column=1)
         
         self.add_element(11)        
