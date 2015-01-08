@@ -165,6 +165,7 @@ class Element(tk.Frame):
         # TODO: the id should always be present.
         if index != -1:       
             self.status.set(self.lm.slaves[index].status)
+            self.status_old = self.status.get()
             self.power.set(self.lm.slaves[index].power)
             self.posx.set(self.lm.slaves[index].posx)
             self.posy.set(self.lm.slaves[index].posy)        
