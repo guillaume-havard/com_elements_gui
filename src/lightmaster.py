@@ -7,6 +7,10 @@ import datetime
 import light
 import usartcomm
 
+SWITCH_STATE_OFF = 0
+SWITCH_STATE_ON = 1
+SWITCH_STATE_CHANGE = 2
+
 class LightMaster():
     """
     Take care off all communication with the slave lights
@@ -21,7 +25,8 @@ class LightMaster():
     messages_pairing = []
     # Not used for the moment
     acknowledgment = []
-
+    # State, managed by the switch
+    switch_state = SWITCH_STATE_CHANGE
     
     
     def __init__(self, id=102):
@@ -57,11 +62,34 @@ class LightMaster():
         Process a slave's message
         """
         message = self.message_to_int(message)
-        print("message slave:", message)      
+        print("message :", message)      
         if message[0] != self.id and message[0] != 0xFF:
             print("message pour un autre destinataire")
             return -1        
-           
+        
+        # Message from the associated switch.
+        if message[0] == 0xFF and message[1] == self.id :
+            print("Message from the switch:", message[2])
+            # Same state
+            if message[2] == self.switch_state :
+                print(" - Deja dans cet etat")
+                message = [0xFF, self.id, 
+                           message[2] | usartcomm.ACK | usartcomm.M_NOT_OK,
+                           0xFF, 0xFF]
+                self.send_message(message)
+            
+            if message[2] == usartcomm.OFF:
+                print(" - Toutes les lumieres : off")
+                self.switch_state = SWITCH_STATE_OFF
+            elif message[2] == usartcomm.ON:
+                print(" - Toutes les lumieres : on")
+                self.switch_state = SWITCH_STATE_ON
+            elif message[2] == usartcomm.CHANGE:
+                print(" - Toutes les lumieres : auto")
+                self.switch_state = SWITCH_STATE_CHANGE
+                
+            return 
+                
         id_slave = message[1]
         self.update_light_time(message)
         
@@ -169,7 +197,7 @@ class LightMaster():
         print("presence of :", id_slave)
         for i in range(len(self.messages)):
             if self.messages[i][0] == id_slave:
-                self.send_message(self.messages[i])
+                self.f(self.messages[i])
                 del self.messages[i]
                 return 1
                 
