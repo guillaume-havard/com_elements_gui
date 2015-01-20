@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """ 
-Copyright (c) 2014 Guillaume Havard - BVS
+Copyright (c) 2015 Guillaume Havard - BVS
 """
 import tkinter as tk
 from tkinter import messagebox
@@ -9,16 +9,9 @@ from tkinter import messagebox
 
 class Element(tk.Frame):
     """
-    TODO: Message status
-    TODO: Message change power
-    TODO: Message pair
-    """
-
-    # internal State
-    is_paired = True
+    """    
     MIN_POWER = 0
     MAX_POWER = 255
-    status_old = None
     
     def __init__(self, master, pos, lm, slave_id):
         """
@@ -29,6 +22,10 @@ class Element(tk.Frame):
         self.grid(row=pos)
         
         self.lm = lm
+        
+        status_old = None
+        # internal State
+        is_paired = True
                 
         self.id = tk.IntVar()
         self.id.set(slave_id)
@@ -175,7 +172,7 @@ class Element(tk.Frame):
         else:
             self.unappair()
             
-        print("Init fait")
+        print("Element::init fait")
         print(self.status.get(), self.power.get(), self.posx.get(),
               self.posy.get())
     

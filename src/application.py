@@ -37,10 +37,10 @@ class Application(tk.Frame):
     def createWidgets(self):
        
         self.bdd_load = tk.Button(self.frame_options, text="Load BdD",
-        command=self.say_hi)        
+        command=self.load_BdD)        
         self.bdd_load.grid(row=0, column=0)
         self.bdd_save = tk.Button(self.frame_options, text="Save BdD",
-        command=self.say_goodbye)        
+        command=self.save_BdD)        
         self.bdd_save.grid(row=0, column=1)
                 
         self.QUIT = tk.Button(self.frame_bottom, text="QUIT", fg="red",
@@ -59,19 +59,11 @@ class Application(tk.Frame):
         self.elements.append(Element(self.frame_elements, index, 
                                      self.lm, slave_id))
                 
-    def say_hi(self):
-        print(self.elements[0].power.set("33"))  
-        print(self.elements[0].posx.set("33"))
+    def load_BdD(self):
+        print("Application::load_BdD")
         
-    def say_goodbye(self):
-        print( )
-                
-        print("id", self.elements[0].id.get())
-        print("status", self.elements[0].status.get())
-        print("power", self.elements[0].power.get())
-        print("posx", self.elements[0].posx.get())
-        print("posy", self.elements[0].posy.get())
-        print("date", self.elements[0].date.get()) 
+    def save_BdD(self):
+        print("Application::save_BdD") 
         
     def update(self):
         """

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """    
-Copyright (c) 2014 Guillaume Havard - BVS
+Copyright (c) 2015 Guillaume Havard - BVS
 """
 import datetime
 import light
@@ -15,24 +15,23 @@ class LightMaster():
     """
     Take care off all communication with the slave lights
     
-    """   
-    # Slave in communication with the master.
-    # Paired or not.
-    slaves = []
-    # list of messages to be sent
-    messages = []
-    # list of pairing messages.
-    messages_pairing = []
-    # Not used for the moment
-    acknowledgment = []
-    # State, managed by the switch
-    switch_state = SWITCH_STATE_CHANGE
-    
+    """       
     
     def __init__(self, id=102):
         self.id = id
         self.serial = usartcomm.UsartComm()
         self.ok = False
+        
+        # Slave in communication with the master, paired or not.
+        self.slaves = []
+        # list of messages to be sent.
+        self.messages = []
+        # list of pairing messages to be sent.
+        self.messages_pairing = []
+        # Not used for the moment
+        self.acknowledgment = []
+        # State, managed by the switch.
+        self.switch_state = SWITCH_STATE_CHANGE
         
     def loop(self):
         """
@@ -197,7 +196,7 @@ class LightMaster():
         print("presence of :", id_slave)
         for i in range(len(self.messages)):
             if self.messages[i][0] == id_slave:
-                self.f(self.messages[i])
+                self.send_message(self.messages[i])
                 del self.messages[i]
                 return 1
                 
