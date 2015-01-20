@@ -33,6 +33,9 @@ class LightMaster():
         # State, managed by the switch.
         self.switch_state = SWITCH_STATE_CHANGE
         
+        # To save the slaves state.
+        self.save_slaves = []
+        
     def loop(self):
         """
         Main loop of the application.
@@ -43,6 +46,7 @@ class LightMaster():
         
         while self.ok:
             print("----")
+            print("INTER:", self.switch_state)
             self.print_slaves()
             self.print_messages()
             ret = self.serial.read(5)           
@@ -61,7 +65,7 @@ class LightMaster():
         Process a slave's message
         """
         message = self.message_to_int(message)
-        print("message :", message)      
+        #print("message :", message)      
         if message[0] != self.id and message[0] != 0xFF:
             print("message pour un autre destinataire")
             return -1        
@@ -78,17 +82,17 @@ class LightMaster():
                 self.send_message(message)
             
             if message[2] == usartcomm.OFF:
-                print(" - Toutes les lumieres : off")
-                self.switch_state = SWITCH_STATE_OFF
+                print("cmd SWITCH - Toutes les lumieres : off")
+                self.switch_to_state_OFF()
             elif message[2] == usartcomm.ON:
-                print(" - Toutes les lumieres : on")
-                self.switch_state = SWITCH_STATE_ON
+                print("cmd SWITCH - Toutes les lumieres : on")
+                self.switch_to_state_ON()
             elif message[2] == usartcomm.CHANGE:
-                print(" - Toutes les lumieres : auto")
-                self.switch_state = SWITCH_STATE_CHANGE
+                print("cmd SWITCH - Toutes les lumieres : auto")
+                self.switch_to_state_CHANGE()
                 
             return 
-                
+                        
         id_slave = message[1]
         self.update_light_time(message)
         
@@ -180,7 +184,7 @@ class LightMaster():
         """
         Check if there a pairing for the slave
         """
-        print("pairing of :", id_slave)
+        #print("pairing of :", id_slave)
         for i in range(len(self.messages_pairing)):
             if self.messages_pairing[i][0] == id_slave:
                 self.send_message(self.messages_pairing[i])
@@ -193,7 +197,7 @@ class LightMaster():
         """
         Check if there is a command demand for the slave
         """
-        print("presence of :", id_slave)
+        #print("presence of :", id_slave)
         for i in range(len(self.messages)):
             if self.messages[i][0] == id_slave:
                 self.send_message(self.messages[i])
@@ -245,7 +249,7 @@ class LightMaster():
         index = self.slave_index_sec(id_slave)
         self.slaves[index].power = value
     
-    ## Command that can be sent
+    ### Command that can be sent
                 
     def cmd_appair(self, id_slave):
         """
@@ -323,8 +327,96 @@ class LightMaster():
                    usartcomm.CHANGE, power]
         self.add_message(message)
         self.update_power(id_slave, power)
+    
+    ## Switch state command
+    def switch_to_state_ON(self):
+        """
+        Execute the actions when the switch is ON
+        """
+        if self.switch_state == SWITCH_STATE_ON:
+            return
+            
+        if self.switch_state == SWITCH_STATE_CHANGE:
+            self.__save_slaves_state()
         
-    ### Private
+        for sl in self.slaves:
+            if not self.is_paired(sl.id):
+                continue
+            if sl.status == 0:
+                self.cmd_switch_on(sl.id, 255)
+            elif sl.status == 1:
+                self.cmd_change_power(sl.id, 255)
+        
+        self.switch_state = SWITCH_STATE_ON
+        self.print_save_slaves()
+            
+    def switch_to_state_OFF(self):
+        """
+        Execute the actions when the switch is OFF
+        """
+        if self.switch_state == SWITCH_STATE_OFF:
+            return
+            
+        if self.switch_state == SWITCH_STATE_CHANGE:
+            self.__save_slaves_state()
+        
+        for sl in self.slaves:
+            if not self.is_paired(sl.id):
+                continue
+            if sl.status == 0:
+                continue
+            self.cmd_switch_off(sl.id)
+        
+        self.switch_state = SWITCH_STATE_OFF
+        self.print_save_slaves()
+            
+    def switch_to_state_CHANGE(self):
+        """
+        Execute the actions when the switch is CHANGE
+        """
+        if self.switch_state == SWITCH_STATE_CHANGE:
+            return
+        
+        states = self.__load_slaves_state()        
+            
+        self.switch_state = SWITCH_STATE_CHANGE
+        self.print_save_slaves()
+    
+    def __save_slaves_state(self):
+        """
+        save the current state of slaves.
+        Its saved in a list for the moment.
+        """
+        del self.save_slaves[:]
+        
+        for sl in self.slaves:
+            self.save_slaves.append(sl)
+        
+    def __load_slaves_state(self):
+        """
+        Load the messages that will have to be sent according to the
+        current situation to retrieve the old configuration.        
+        Send the messages.
+        """
+        for sl in self.save_slaves:
+            current = self.slaves[self._slave_index(sl.id)]
+            if not self.is_paired(sl.id):
+                continue
+            
+            if sl.status == 0:                
+                if current.status == 0:
+                    continue
+                elif current.status == 1:
+                    self.cmd_switch_off(sl.id)
+            elif sl.status == 1:
+                if current.status == 0:
+                    self.cmd_switch_on(sl.id, sl.power)
+                elif current.status == 1:
+                    self.cmd_change_power(sl.id, sl.power)
+        
+        
+        
+    ### Private ###
     def print_slaves(self):
         """
         Print the current states of all slaves
@@ -333,6 +425,14 @@ class LightMaster():
         for i in self.slaves:
             print(i)
             
+    def print_save_slaves(self):
+        """
+        Print the current states of saved slaves.
+        """
+        print("Save slave list :")
+        for i in self.save_slaves:
+            print(i) 
+                  
     def print_messages(self):
         """
         Print the current states of all slaves
@@ -340,7 +440,7 @@ class LightMaster():
         print("message list :")
         for i in self.messages:
             print(i)
-            
+  
         if len(self.messages_pairing) > 0:
             print("pairing message list :")
             for i in self.messages_pairing:
