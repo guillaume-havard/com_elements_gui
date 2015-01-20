@@ -12,7 +12,7 @@ import _thread
 
 class Application(tk.Frame):
     
-    elements = []
+    
     
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
@@ -22,7 +22,7 @@ class Application(tk.Frame):
         self.grid()
         
         self.lm = lightmaster.LightMaster()
-        
+        self.elements = []
         self.frame_options = tk.Frame(self)
         self.frame_options.grid(row=0)
         self.frame_elements = tk.Frame(self)
