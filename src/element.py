@@ -173,8 +173,8 @@ class Element(tk.Frame):
             self.unappair()
             
         print("Element::init fait")
-        print(self.status.get(), self.power.get(), self.posx.get(),
-              self.posy.get())
+        print(self.id.get(), ":", self.status.get(), self.power.get(),
+              self.posx.get(), self.posy.get())
     
     def update(self):
         """

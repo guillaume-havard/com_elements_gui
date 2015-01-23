@@ -45,10 +45,10 @@ class LightMaster():
         self.ok = True
         
         while self.ok:
-            print("----")
-            print("INTER:", self.switch_state)
-            self.print_slaves()
-            self.print_messages()
+            #print("----")
+            #print("INTER:", self.switch_state)
+            #self.print_slaves()
+            #self.print_messages()
             ret = self.serial.read(5)           
             if ret is None:
                 print("Pas de message")
@@ -67,10 +67,12 @@ class LightMaster():
         message = self.message_to_int(message)
         #print("message :", message)      
         if message[0] != self.id and message[0] != 0xFF:
-            print("message pour un autre destinataire")
+            print("message pour un autre destinataire", message[0])
+            self.print_message(message)
             return -1        
         
         # Message from the associated switch.
+        # TODO : make a function.
         if message[0] == 0xFF and message[1] == self.id :
             print("Message from the switch:", message[2])
             # Same state
@@ -106,6 +108,7 @@ class LightMaster():
             # Acknowledgment commande
             if message[2] & usartcomm.RES == usartcomm.S_NOT_OK:
                 print("There is an error for the last command")
+                self.print_message(message)
             self.check_command(id_slave)
         else:
             # Unknown type of message
@@ -435,7 +438,7 @@ class LightMaster():
                   
     def print_messages(self):
         """
-        Print the current states of all slaves
+        Print the current messages to be sent
         """
         print("message list :")
         for i in self.messages:
@@ -445,6 +448,20 @@ class LightMaster():
             print("pairing message list :")
             for i in self.messages_pairing:
                 print(i)
+    
+    def print_message(self, message):
+        """
+        Print a messages
+        message : list(int) (len = 5)
+        """
+        if len(message) != 5:
+            print("The message does not have a good size")
+            return -1
+            
+        print("@", message[0], "(", message[1] ,") : ",
+              message[2],message[3],message[4],)
+  
+       
             
     def add_message(self, message):
         """

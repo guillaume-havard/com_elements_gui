@@ -5,6 +5,7 @@ Copyright (c) 2014 Guillaume Havard - BVS
 """
 import serial
 
+COMMAND = 0x0F
 PRESENCE = 0x01
 ON = 0x02
 OFF = 0x03
@@ -15,7 +16,7 @@ UNPAIRING = 0x0C
 
 ACK = 0x10
 
-RES = 0xC0
+RES = 0xE0
 S_OK = 0x00
 S_NOT_OK = 0x40
 M_NOT_OK = 0x80
